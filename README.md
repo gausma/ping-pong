@@ -1,10 +1,12 @@
 # Ping Pong
 
-JavaScript Ping Pong game base on the Phaser library (https://phaser.io/). All data (including image information) are contained in the game file. By obfuscation you can combine the game and the library in a single file. 
+JavaScript Ping Pong game base on the Phaser library (https://phaser.io/). A single player can play against the computer AI.
+
+All data (including image information) are contained in the game file. By obfuscation you can combine the game and the library into a single file. 
 
 This game was developed as easter egg and provides boss key functionality. It was developed on an Android tablet with a text editor and Chrome because no other hardware was available at the time.
 
-The game page will only open if the correct query is submitted. Otherwise it is automatically redirected to the application.
+The game page will only open if the correct query is submitted. Otherwise it is automatically redirected to the application. To start the game, open the index.html in your favorite browser and click on the link.
 
 ![Welcome](assets/screenshot.png)
 
