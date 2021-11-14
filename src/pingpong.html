@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta http-equiv='Content-Type' content='text/html; charset=unicode'/>
+  <meta http-equiv='X-UA-Compatible' content='IE=9'/>
+  
+  <title>Ping Pong</title>
+  
+  <style type="text/css">
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      
+	  background-color: #eeeeee;
+    }
+	.bgtext {	  
+	  color: #dddddd;
+	  
+      font-size: 200pt;
+      font-family: arial, sans-serif;
+	  font-weight:bold;
+	  line-height: 150%;
+	  
+	  text-align: center;
+
+	  width: 1000px;
+	  height: 800px;
+
+	  position: absolute;
+	  top:0;
+	  bottom: 0;
+	  left: 0;
+	  right: 0;
+
+	  margin: auto;
+	}
+    .game {
+	  width: 600px;
+	  height: 400px;
+
+	  position: absolute;
+	  top:0;
+	  bottom: 0;
+	  left: 0;
+	  right: 0;
+
+	  margin: auto;
+    }       
+  </style>
+</head>
+<body>
+  <div class='bgtext' id='bgtext'></div>
+  <div class='game' id='Ping Pong'/>
+
+  <script type="text/javascript" src="../lib/phaser.min.js"></script>
+  <script type="text/javascript">
+
+    var BACKGROUND_COLOR = '#aaaaaa';
+
+	var BALL_BITMAP = [['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','127,127,127,0.01','213,220,220,0.15','217,219,219,0.42','217,219,220,0.64','217,218,218,0.77','217,218,220,0.89','217,219,220,0.87','217,218,220,0.78','217,219,221,0.65','218,218,220,0.44','213,213,213,0.15','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','218,182,218,0.03','216,219,219,0.34','216,220,221,0.82','217,221,223,1','217,218,219,1','217,214,214,1','218,212,210,1','218,211,208,1','218,211,208,1','218,212,210,1','217,214,213,1','217,218,219,1','217,220,223,1','216,219,221,0.83','217,217,217,0.32','208,208,208,0.04','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','217,213,213,0.22','216,219,220,0.79','217,222,225,1','217,212,211,1','219,200,193,0.98','223,169,143,0.98','227,142,98,0.99','230,124,68,0.99','231,116,54,1','231,116,54,1','230,124,67,0.99','228,141,96,0.99','223,170,143,0.98','219,199,190,0.98','217,212,211,0.99','216,221,224,1','216,219,220,0.79','214,214,214,0.22','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','217,214,214,0.42','216,220,224,0.98','217,217,218,1','220,191,177,0.97','227,144,101,0.99','235,98,23,1','237,98,14,1','237,105,19,1','236,107,13,1','236,109,16,1','236,109,15,1','236,107,14,1','236,106,19,1','237,97,12,1','235,100,25,1','227,144,100,0.99','220,189,175,0.97','217,219,221,1','217,220,223,1','215,215,215,0.41','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','215,215,215,0.48','217,222,224,1','217,212,211,1','225,159,125,0.98','235,103,29,1','236,102,14,1','236,120,32,1','237,124,31,1','239,134,43,1','243,159,86,1','243,160,86,1','243,161,88,1','242,158,84,1','239,135,44,1','237,124,30,1','237,120,33,1','237,102,15,1','235,103,30,1','225,157,124,0.99','217,212,211,0.97','217,220,222,1','217,217,217,0.48','0,0,0,0','127,127,127,0.01','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','216,216,214,0.42','216,221,224,1','218,210,208,0.98','228,136,90,0.99','236,99,16,1','236,116,27,1','237,126,31,1','239,130,28,1','240,131,22,1','245,169,89,1','252,226,195,1','252,224,188,1','252,224,192,1','251,218,179,1','245,177,105,1','239,126,12,1','239,130,29,1','237,125,30,1','237,118,30,1','237,97,14,1','228,138,91,1','217,210,207,0.97','217,219,220,1','216,218,218,0.44','0,0,0,0','191,191,191,0.02','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','217,213,213,0.22','216,221,224,0.98','217,212,211,1','228,136,90,0.99','236,100,17,1','237,120,30,1','239,127,27,1','239,132,24,1','241,139,25,1','241,141,18,1','246,177,91,1','250,215,172,1','250,210,160,1','249,202,143,1','248,194,125,1','248,191,121,1','240,134,5,1','241,140,26,1','239,133,24,1','238,127,27,1','236,122,33,1','237,99,14,1','229,137,89,1','216,216,216,0.98','218,218,218,1','217,217,217,0.24','0,0,0,0','127,127,127,0.01'],
+					   ['0,0,0,0','218,218,218,0.03','216,219,220,0.79','217,217,218,1','225,159,125,0.98','236,99,17,1','237,120,30,1','238,127,26,1','240,135,24,1','241,141,22,1','242,147,21,1','243,151,20,1','244,161,37,1','251,219,167,1','249,199,119,1','250,207,140,1','251,214,161,1','245,166,49,1','243,148,15,1','242,147,22,1','241,141,22,1','240,135,23,1','239,127,25,1','237,122,33,1','236,99,16,1','226,153,117,1','216,222,225,1','216,216,217,0.85','0,0,0,0','204,204,204,0.02'],
+					   ['0,0,0,0','219,219,219,0.33','217,222,225,1','220,191,177,0.97','234,103,29,1','237,116,27,1','239,127,27,1','240,135,23,1','241,142,21,1','242,148,19,1','243,153,17,1','245,157,18,1','244,157,6,1','247,179,61,1','251,209,142,1','251,214,152,1','248,187,80,1','244,153,0,1','245,159,20,1','243,153,18,1','242,149,19,1','241,142,21,1','240,135,24,1','238,126,26,1','236,119,31,1','235,102,26,1','220,193,181,1','218,217,217,1','216,216,216,0.42','0,0,0,0'],
+					   ['127,127,127,0.01','216,220,221,0.81','218,212,211,1','227,144,101,0.99','237,102,14,1','237,125,31,1','239,132,24,1','241,141,22,1','242,148,19,1','243,153,17,1','245,159,16,1','245,163,15,1','247,170,26,1','253,233,200,1','251,210,134,1','251,214,143,1','252,225,175,1','247,174,36,1','245,162,10,1','244,160,16,1','243,154,17,1','242,148,19,1','241,142,22,1','240,132,24,1','238,124,27,1','236,110,26,1','230,129,76,1','217,224,228,1','217,214,214,0.86','0,0,0,0'],
+					   ['220,220,220,0.15','217,221,223,1','219,201,193,0.98','235,99,24,1','236,119,31,1','239,129,26,1','241,138,23,1','242,146,20,1','243,153,17,1','244,159,15,1','246,164,15,1','246,165,3,1','250,198,94,1','251,210,124,1','247,176,18,1','248,179,28,1','251,204,104,1','250,207,120,1','245,160,0,1','246,165,16,1','244,159,15,1','243,154,18,1','242,146,20,1','240,138,23,1','239,128,25,1','237,119,30,1','235,103,27,1','220,200,191,1','216,217,217,0.96','216,216,216,0.26'],
+					   ['217,219,219,0.42','217,218,219,1','223,169,143,0.98','237,98,14,1','237,124,31,1','240,133,24,1','241,143,22,1','243,150,18,1','245,157,16,1','246,162,13,1','246,168,12,1','247,168,2,1','250,195,79,1','253,223,161,1','247,165,0,1','248,173,0,1','251,214,134,1','250,204,105,1','246,164,0,1','247,167,13,1','245,163,13,1','244,157,16,1','243,151,19,1','241,142,22,1','240,133,24,1','238,122,28,1','236,108,27,1','226,159,126,1','216,221,223,0.99','217,215,214,0.54'],
+					   ['217,219,220,0.64','217,214,213,1','227,142,97,0.99','237,108,22,1','238,126,29,1','240,136,24,1','242,145,21,1','244,153,17,1','245,160,14,1','246,166,11,1','247,169,8,1','248,174,8,1','248,174,2,1','252,226,166,1','255,253,248,1','255,252,244,1','252,224,160,1','248,173,1,1','248,173,7,1','247,170,8,1','245,165,11,1','245,160,15,1','244,153,18,1','242,146,21,1','240,135,24,1','238,125,27,1','236,112,28,1','230,129,77,1','216,224,229,1','218,213,212,0.75'],
+					   ['217,218,218,0.77','218,212,210,1','230,124,68,0.99','237,113,25,1','238,129,27,1','241,138,23,1','242,147,20,1','244,155,17,1','246,161,13,1','246,167,10,1','247,170,7,1','248,174,3,1','248,176,2,1','249,177,3,1','251,194,65,1','251,195,65,1','249,177,0,1','248,176,3,1','248,174,4,1','247,171,6,1','247,167,10,1','245,162,13,1','244,155,17,1','243,148,20,1','240,138,24,1','239,127,26,1','237,114,28,1','233,109,43,1','216,228,234,1','217,213,211,0.86'],
+					   ['217,218,220,0.89','218,211,208,1','231,116,53,1','237,115,27,1','239,129,27,1','241,139,23,1','243,148,19,1','245,156,16,1','246,162,13,1','247,168,9,1','248,172,7,1','248,176,7,1','248,177,8,1','254,240,211,1','254,241,212,1','254,242,214,1','253,238,200,1','248,178,9,1','248,175,4,1','248,172,7,1','246,168,9,1','245,162,13,1','244,156,17,1','243,148,20,1','241,139,22,1','239,128,26,1','237,116,28,1','234,105,34,1','217,224,229,1','217,214,213,0.91'],
+					   ['217,219,220,0.87','218,211,208,1','231,116,53,1','237,115,27,1','239,129,27,1','241,139,23,1','243,148,20,1','245,156,16,1','246,163,13,1','247,168,9,1','247,173,8,1','248,173,0,1','251,203,91,1','253,215,128,1','248,167,0,1','249,174,0,1','251,205,99,1','251,212,120,1','247,169,0,1','248,173,10,1','246,168,9,1','245,163,13,1','244,156,17,1','243,149,20,1','241,139,23,1','239,129,25,1','237,116,28,1','234,104,34,1','217,225,229,1','217,214,213,0.91'],
+					   ['217,218,220,0.78','218,212,210,1','230,123,67,0.99','237,113,25,1','238,128,27,1','241,138,23,1','242,147,20,1','244,155,17,1','245,162,13,1','247,167,9,1','247,172,8,1','248,172,0,1','250,199,80,1','253,220,144,1','250,187,29,1','250,190,40,1','251,213,121,1','251,207,104,1','247,169,0,1','247,172,10,1','247,167,9,1','245,162,13,1','244,155,17,1','242,147,20,1','241,138,24,1','239,127,26,1','237,115,28,1','233,109,43,1','216,227,234,1','216,214,212,0.87'],
+					   ['217,219,221,0.65','218,214,213,1','227,140,95,0.99','237,108,22,1','238,127,29,1','241,135,24,1','242,145,21,1','243,153,17,1','245,159,14,1','246,165,11,1','247,169,8,1','248,173,8,1','248,175,6,1','253,231,180,1','252,222,150,1','253,228,171,1','253,228,171,1','248,175,6,1','247,173,5,1','247,169,9,1','246,166,11,1','245,160,14,1','243,153,17,1','242,146,21,1','240,136,24,1','239,125,26,1','237,113,28,1','230,128,75,1','216,225,230,1','217,214,211,0.74'],
+					   ['218,218,220,0.44','218,218,219,1','223,170,143,0.98','237,97,12,1','237,125,31,1','240,133,24,1','241,142,22,1','243,150,19,1','244,157,16,1','245,163,12,1','247,167,9,1','247,170,8,1','247,170,0,1','249,188,52,1','252,214,129,1','250,193,67,1','249,181,28,1','248,177,17,1','247,169,5,1','246,167,9,1','245,163,12,1','244,158,16,1','243,150,19,1','241,142,22,1','240,133,24,1','238,122,27,1','236,109,28,1','225,158,123,1','216,221,223,0.99','218,214,214,0.55'],
+					   ['213,213,220,0.15','217,220,223,1','219,199,190,0.98','235,100,25,1','237,120,31,1','239,128,26,1','241,138,23,1','242,146,20,1','243,153,18,1','244,159,15,1','245,164,13,1','247,166,9,1','248,181,44,1','253,229,184,1','252,227,173,1','248,176,20,1','249,190,67,1','250,204,110,1','246,161,0,1','245,165,15,1','245,159,15,1','244,154,17,1','242,146,20,1','241,138,23,1','239,128,25,1','236,119,30,1','235,101,26,1','220,201,192,1','216,216,217,0.96','216,216,216,0.26'],
+					   ['0,0,0,0','217,219,221,0.82','216,212,211,0.99','227,144,100,0.99','237,102,15,1','238,125,30,1','239,132,24,1','241,141,22,1','242,149,20,1','243,154,17,1','244,160,18,1','245,160,6,1','250,201,112,1','251,214,143,1','250,203,115,1','254,240,212,1','251,211,133,1','250,207,126,1','245,156,0,1','245,160,19,1','244,154,17,1','243,148,19,1','241,142,22,1','240,133,24,1','238,123,27,1','235,112,29,1','231,127,74,1','217,223,227,1','217,215,215,0.85','0,0,0,0'],
+					   ['0,0,0,0','217,217,217,0.32','216,221,224,1','220,190,175,0.97','234,104,30,1','236,118,30,1','238,126,26,1','240,135,24,1','241,142,21,1','242,148,20,1','243,153,19,1','244,156,13,1','246,173,53,1','247,178,56,1','246,168,25,1','252,221,171,1','251,211,146,1','246,167,34,1','244,157,14,1','244,154,19,1','243,148,19,1','241,142,22,1','240,135,23,1','238,126,24,1','236,120,34,1','235,98,21,1','219,195,183,1','216,216,217,1','218,218,218,0.44','0,0,0,0'],
+					   ['0,0,0,0','208,208,208,0.04','216,219,220,0.79','217,219,221,1','225,158,123,0.99','237,97,14,1','236,122,33,1','239,127,25,1','240,135,24,1','241,142,22,1','242,147,22,1','243,148,15,1','246,176,72,1','247,180,79,1','243,143,0,1','243,148,1,1','244,150,9,1','243,146,1,1','243,152,21,1','242,147,20,1','241,142,22,1','240,135,24,1','239,126,24,1','236,123,35,1','237,98,14,1','227,156,122,1','216,219,221,0.98','216,216,216,0.87','0,0,0,0','204,204,204,0.02'],
+					   ['0,0,0,0','0,0,0,0','214,214,214,0.22','217,220,223,1','217,212,211,0.97','228,138,91,1','237,99,14,1','237,122,33,1','238,126,26,1','240,132,24,1','241,139,25,1','241,141,18,1','246,178,93,1','253,236,212,1','251,218,172,1','251,220,175,1','250,214,162,1','245,170,74,1','241,139,14,1','241,139,25,1','240,132,24,1','238,126,25,1','236,123,34,1','237,100,16,1','229,137,90,1','217,212,211,0.97','217,218,219,1','216,216,221,0.24','0,0,0,0','127,127,127,0.01'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','215,215,215,0.41','217,220,222,1','217,210,207,0.97','229,137,90,1','236,99,16,1','236,119,31,1','238,124,27,1','239,130,27,1','240,131,20,1','245,172,94,1','249,208,164,1','245,173,92,1','246,176,100,1','245,172,94,1','242,148,49,1','240,131,20,1','239,129,26,1','238,123,27,1','236,120,34,1','237,98,13,1','230,137,90,1','217,207,204,0.97','217,220,222,1','217,217,217,0.43','0,0,0,0','170,170,170,0.01','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','217,217,217,0.48','217,219,220,1','216,216,216,0.98','225,153,117,1','235,102,26,1','236,110,26,1','237,120,31,1','238,121,25,1','242,151,72,1','243,161,89,1','239,127,23,1','239,130,26,1','239,128,26,1','239,126,26,1','238,122,27,1','236,119,30,1','235,112,30,1','235,98,21,1','227,156,121,1','217,212,210,0.97','217,220,222,1','218,218,220,0.55','170,170,170,0.01','0,0,0,0','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','216,218,218,0.44','218,218,218,1','216,222,225,1','220,194,181,1','230,128,76,1','235,102,27,1','236,108,27,1','236,112,28,1','237,115,29,1','237,116,28,1','237,116,28,1','237,115,28,1','236,112,28,1','236,109,28,1','235,101,26,1','231,127,74,1','219,195,182,1','216,219,221,0.98','217,218,219,1','217,217,217,0.43','170,170,170,0.01','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','127,127,127,0.01','0,0,0,0','217,217,217,0.24','217,216,217,0.85','217,217,217,1','216,224,228,1','220,200,191,1','226,159,126,1','230,129,78,1','233,109,44,1','234,105,34,1','234,104,34,1','233,109,43,1','230,128,75,1','225,158,123,1','220,201,192,1','217,223,227,1','216,216,217,1','216,216,216,0.87','216,216,221,0.24','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','191,191,191,0.02','0,0,0,0','0,0,0,0','218,216,216,0.41','217,214,214,0.86','216,217,217,0.96','216,221,223,0.99','216,224,229,1','216,228,234,1','217,225,229,1','217,225,230,1','216,227,234,1','216,225,230,1','216,221,223,0.99','216,216,217,0.96','217,215,215,0.86','218,218,218,0.44','0,0,0,0','0,0,0,0','170,170,170,0.01','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0'],
+					   ['0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','127,127,127,0.01','204,204,204,0.02','0,0,0,0','0,0,0,0','216,216,216,0.26','217,215,214,0.54','218,213,213,0.75','217,213,211,0.86','217,214,213,0.91','217,214,213,0.91','216,214,212,0.87','217,214,211,0.74','218,215,213,0.55','216,216,216,0.26','0,0,0,0','0,0,0,0','204,204,204,0.02','127,127,127,0.01','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0','0,0,0,0']];
+
+    var STATE_DEMO_DELAY = 1;
+    var STATE_DEMO = 2;
+    var STATE_COUNTDOWN = 3;
+    var STATE_GAME = 4;
+
+    var state = STATE_DEMO_DELAY;
+
+    var WINNER_SCORE = 5;
+    var BALL_DISTANCE = 10;
+    
+	var DEFAULT_CHECK = 'mode=EASTEREGG';
+	var DEFAULT_PAGE = 'index.html';
+	var DEFAULT_CR = '2015MAG';
+
+    var ballSize = 30;
+    var ballSpeed = 340;
+
+    var playerWidth = 10;
+    var playerHeight = 100;
+
+    var playerDistance = 50;
+    var playerSpeed = 240;
+    
+    var player1DeltaY = 0;   
+    var player1LastY = 0; 
+    var player2DeltaY = 0;   
+    var player2LastY = 0; 
+
+    var background;
+	var centerLine;
+    var startButton;
+    var ball;
+    var player1;
+    var player2;
+
+    var scorePlayer1 = 0;
+    var scorePlayer2 = 0;
+    var scoreTextPlayer1;
+    var scoreTextPlayer2;
+
+    var countdownText;
+    var winnerText;
+
+    var lastStopTime = new Date();
+    var lastWinner = 1;
+
+	var bossKey;
+	
+    var game;
+
+
+    // Evaluate URL
+    if(!strEndsWith(document.location.href, DEFAULT_CHECK))
+    {
+      document.location.href = DEFAULT_PAGE;
+    }
+    else
+    {
+  	  var bgtext = document.getElementById('bgtext');
+      bgtext.innerHTML = 'PING<br>PONG';
+      game = new Phaser.Game(600, 400, Phaser.AUTO, 'Ping Pong', { create: create, update: update });
+    }
+
+    function createBackground()
+    {
+      var bmdPlayer = game.add.bitmapData(1, game.world.height);
+      centerLine = game.add.sprite(game.world.centerX, game.world.centerY, bmdPlayer);
+      game.physics.enable(centerLine, Phaser.Physics.ARCADE);
+      centerLine.anchor.setTo(0.5, 0.5);
+      centerLine.body.immovable = true;	  
+	
+      var bmdBackground = game.add.bitmapData(game.world.width, game.world.height); 
+      bmdBackground.ctx.beginPath();
+      bmdBackground.ctx.lineWidth = 4; 
+      bmdBackground.ctx.strokeStyle = '#777777'; 
+      for(var y=4; y<game.world.height; y+=16)
+      {
+        bmdBackground.ctx.moveTo(game.world.centerX, y); 
+        bmdBackground.ctx.lineTo(game.world.centerX, y+8);
+      }
+      bmdBackground.ctx.stroke(); 
+      
+      bmdBackground.ctx.moveTo(0, 0);
+      bmdBackground.ctx.lineTo(game.world.width, 0);
+      bmdBackground.ctx.lineTo(game.world.width, game.world.height);
+      bmdBackground.ctx.lineTo(0, game.world.height);
+      bmdBackground.ctx.lineTo(0, 0);
+      bmdBackground.ctx.stroke(); 
+      
+      bmdBackground.ctx.closePath();
+
+      var retBackground = game.add.sprite(0, 0, bmdBackground);
+      return retBackground;
+    }
+
+    function createBall()
+    {
+      var bmdBall = game.add.bitmapData(ballSize, ballSize);
+      
+      // Crate a ball without image
+      // bmdBall.ctx.fillStyle = '#900000';
+      // bmdBall.ctx.beginPath(); 
+      // bmdBall.ctx.arc(ballSize /2, ballSize /2, ballSize /2, 0, Math.PI*2, true); 
+      // bmdBall.ctx.closePath(); 
+      // bmdBall.ctx.fill();
+
+	  for(var posX=0; posX<ballSize; posX++)
+  	  {
+        for(var posY=0; posY<ballSize; posY++)
+        {
+          bmdBall.ctx.fillStyle = "rgba(" + BALL_BITMAP[posX][posY] + ")";
+          bmdBall.ctx.fillRect(posX, posY, 1, 1);
+  	    }
+      }  
+
+      var retBall = game.add.sprite(game.world.centerX, game.world.centerY, bmdBall);
+      game.physics.enable(retBall, Phaser.Physics.ARCADE);
+      retBall.anchor.setTo(0.5, 0.5);
+      retBall.body.collideWorldBounds = true;
+      retBall.body.bounce.setTo(1, 1);
+
+      return retBall;
+    }
+
+    function createPlayer(pos)
+    {
+      var bmdPlayer = game.add.bitmapData(playerWidth, playerHeight);
+      bmdPlayer.ctx.beginPath();
+      bmdPlayer.ctx.rect(0, 0, playerWidth, playerHeight);
+      bmdPlayer.ctx.fillStyle = '#000000';
+      bmdPlayer.ctx.fill();
+
+      var retPlayer = game.add.sprite(pos, game.world.centerY, bmdPlayer);
+      game.physics.enable(retPlayer, Phaser.Physics.ARCADE);
+      retPlayer.anchor.setTo(0.5, 0.5);
+      retPlayer.body.collideWorldBounds = true;
+      retPlayer.body.immovable = true;
+
+      return retPlayer;
+    }
+
+    function createStartButton()
+    {
+      var bmdStartButton = game.add.bitmapData(game.world.width, game.world.height);
+      bmdStartButton.ctx.beginPath();
+      bmdStartButton.ctx.fillStyle = 'rgba(70, 70, 70, 0.6)';
+      bmdStartButton.ctx.rect(game.world.centerX-200, game.world.centerY+50, 400, 100);
+      bmdStartButton.ctx.fill();
+      
+      bmdStartButton.ctx.font = '32px sans-serif';
+      bmdStartButton.ctx.textAlign = 'center';
+      bmdStartButton.ctx.textBaseline = 'middle';
+      bmdStartButton.ctx.fillStyle = 'black';
+      bmdStartButton.ctx.fillText('Click or Touch to play', game.world.centerX, game.world.centerY+85);
+
+	  bmdStartButton.ctx.font = '16px sans-serif';
+      bmdStartButton.ctx.fillText('ESC is boss key', game.world.centerX, game.world.centerY+125);
+	  
+      var retStartButton = game.add.button(0, 0, bmdStartButton, onStartButtonClick, this);
+      retStartButton.anchor.setTo(0, 0);
+
+      return retStartButton;
+    }
+
+    function onStartButtonClick() 
+    {
+      state = STATE_GAME;
+      stop();
+
+      startButton.visible = false;
+      
+      ball.reset(game.world.centerX, game.world.centerY);
+      player1.reset(player1.x, game.world.centerY);
+      player2.reset(player2.x, game.world.centerY);
+      game.input.y =game.world.centerY;
+
+      scorePlayer1 = 0;
+      scoreTextPlayer1.text = scorePlayer1;
+      scorePlayer2 = 0;
+      scoreTextPlayer2.text = scorePlayer2;
+      
+      winnerText.visible = false;
+      
+      lastWinner = 1;
+    }
+
+    function start()
+    {   
+      ball.reset(game.world.centerX, game.world.centerY);
+      ball.body.velocity.x = (lastWinner === 2)?ballSpeed:(ballSpeed * -1);
+ 
+      var direction = Math.round(Math.random()) * 2 - 1;
+      var velocityY = ballSpeed + (Math.random() * (ballSpeed/3)) - (ballSpeed/2);
+      ball.body.velocity.y = direction * velocityY;
+ 
+      if(state === STATE_DEMO_DELAY)
+      {
+        state = STATE_DEMO;
+      }
+      else if(state === STATE_COUNTDOWN)
+      {
+        state = STATE_GAME;
+      }
+    }
+
+    function stop()
+    {
+      ball.reset(ball.x, ball.y);
+    
+      player2.reset(player2.x, player2.y);
+
+      lastStopTime = new Date();
+
+      if(state === STATE_DEMO)
+      {
+        state = STATE_DEMO_DELAY;
+        player1.reset(player1.x, player1.y);
+      }
+      else if(state === STATE_GAME)
+      {
+        state = STATE_COUNTDOWN;
+        player1.reset(player1.x, game.world.centerY);
+      }
+    }
+
+    function createText(x, y, text)
+    {
+      var text = game.add.text(x, y, text);
+      text.anchor.setTo(0.5, 0.5);
+      text.font = 'Arial';
+      text.fontSize = 32;
+      text.fontWeight = 'bold';
+      text.align = 'center';
+      
+      return text;
+    }
+    
+    function strEndsWith(str, suffix)
+    {
+      return str.match(suffix+"$")==suffix;
+    }
+	
+    function onBossKey () 
+	{
+      document.location.href = DEFAULT_PAGE;
+    }
+	
+    function create() 
+    {
+      // Create Game
+      game.physics.startSystem(Phaser.Physics.ARCADE);
+
+      game.stage.backgroundColor = BACKGROUND_COLOR;
+      background = createBackground();
+
+      player1 = createPlayer( playerDistance );
+      player2 = createPlayer( game.world.width - playerDistance );
+
+      ball = createBall();
+ 
+      // Text
+      scoreTextPlayer1 = createText(game.world.width / 3, 32, '');
+      scoreTextPlayer2 = createText(game.world.width * 2 / 3, 32, '');
+      countdownText = createText(game.world.centerX, game.world.centerY, '');  
+
+      winnerText = createText(game.world.centerX-120, game.world.centerY-50, 'Winner!');  	  
+	  game.physics.enable(winnerText, Phaser.Physics.ARCADE);
+	  winnerText.fill = '#11dd11';
+      winnerText.stroke = '#aaffaa';
+      winnerText.strokeThickness = 8;
+	  winnerText.body.velocity.setTo(-200, -120);
+      winnerText.body.collideWorldBounds = true;
+      winnerText.body.bounce.setTo(1, 1);
+      winnerText.visible = false;
+
+      startButton = createStartButton();
+	  
+	  // Boss key
+	  bossKey = game.input.keyboard.addKey(Phaser.Keyboard.ESC);
+      bossKey.onDown.add(onBossKey, this);
+    }
+
+    function calcPlayerVelocity(player, checkPos)
+    {
+      var retVelocity = 0;
+
+      if ( player.y - ball.y < -15 ) 
+      {
+        retVelocity = playerSpeed;
+      } 
+      else if ( player.y - ball.y > 15 ) 
+      {
+        retVelocity = playerSpeed * -1;
+      } 
+      else 
+      {
+        retVelocity = 0;
+      }
+
+      if(checkPos() === true)
+      {
+        retVelocity = retVelocity / 3;
+      }
+
+      return retVelocity;
+    }
+
+    function checkPlayerGoal(scorePlayer, winnerPos, winnerNo)
+    {
+      if(scorePlayer === WINNER_SCORE)
+      {
+        scoreTextPlayer1.text = '';
+        scoreTextPlayer2.text = '';
+        state = STATE_DEMO;
+        startButton.visible = true;
+        winnerText.x = game.world.centerX + winnerPos;
+        winnerText.y = game.world.centerY-50;
+        winnerText.visible = true;
+      }
+      else
+      {
+        scoreTextPlayer1.text = scorePlayer1;
+        scoreTextPlayer2.text = scorePlayer2;
+        lastWinner = winnerNo;
+      }    
+    }
+
+    function checkGoal()
+    {
+      if(ball.x < ((ballSize / 2) + BALL_DISTANCE) )
+      {
+        if(state === STATE_GAME)
+        {
+          scorePlayer2++;
+          checkPlayerGoal(scorePlayer2, 120, 2);
+        }
+        stop();
+      }
+
+      if(ball.x > (game.world.width - (ballSize / 2) - BALL_DISTANCE) )
+      {
+        if(state === STATE_GAME)
+        {
+          scorePlayer1++;
+          checkPlayerGoal(scorePlayer1, -120, 1);
+        }
+        stop();
+      }
+    }
+
+    function collisionHandler1(obj1, obj2)
+    {
+        var delta = Math.min(50, player1DeltaY*10);
+        ball.body.velocity.y += delta;
+    }
+
+    function collisionHandler2(obj1, obj2)
+    {
+        var delta = Math.min(50, player2DeltaY*10);
+        ball.body.velocity.y += delta;
+    }
+    
+    function update() 
+    {
+      game.physics.arcade.collide(ball, player1, collisionHandler1, null, this);
+      game.physics.arcade.collide(ball, player2, collisionHandler2, null, this);
+
+      game.physics.arcade.collide(winnerText, centerLine, collisionHandler2, null, this);
+
+      if(state === STATE_COUNTDOWN)
+      {
+        var now = new Date();
+        var nowMsec = now.getTime();
+        var lastStopMsec = lastStopTime.getTime();
+        var countdown = 3 - Math.floor( (nowMsec - lastStopMsec) / 700 );
+        if(countdown > 0)
+        {
+          if((nowMsec % 2) === 0) 
+          {
+            countdownText.text = countdown;
+            countdownText.fontSize = Math.max(8, ((nowMsec - lastStopMsec) % 700) / 4);
+            countdownText.alpha = (0, 1.0 - (((nowMsec - lastStopMsec) % 700) / 700) );
+          }
+        }
+        else
+        {
+          countdownText.text = '';
+          start();
+        }
+      }
+      
+      if((state === STATE_GAME) || (state === STATE_COUNTDOWN))
+      {
+        var y = game.input.y;
+        if(y < (playerHeight / 2))
+        {
+          y = (playerHeight / 2);
+        }
+        if(y > (game.world.height - (playerHeight / 2)))
+        {
+          y = (game.world.height - (playerHeight / 2));
+        }        
+        player2.reset(player2.x, y);
+      }
+  
+      if(state === STATE_DEMO_DELAY)
+      {
+        var now = new Date();
+        var nowMsec = now.getTime();
+        var lastStopMsec = lastStopTime.getTime();
+        if((nowMsec - lastStopMsec) > 1000)
+        {
+          start();
+        }
+      }
+  
+      if(state === STATE_DEMO)
+      {
+        var player2Check = function() 
+        { 
+          if(ball.x < (game.world.width / 3)) { return true; } else { return false; } 
+        };
+        player2.body.velocity.y = calcPlayerVelocity(player2, player2Check);
+      }
+  
+      if((state === STATE_DEMO) || (state === STATE_GAME))
+      {  
+        var player1Check = function() 
+        { 
+          if(ball.x > (game.world.width * 2 / 3)) { return true; } else { return false; } 
+        };
+        player1.body.velocity.y = calcPlayerVelocity(player1, player1Check);
+
+        checkGoal();
+      }
+      
+      player1DeltaY = player1.y - player1LastY;
+      player1LastY = player1.y;
+      player2DeltaY = player2.y - player2LastY;
+      player2LastY = player2.y;
+    }
+
+  </script>	  
+</body>
+</html>
